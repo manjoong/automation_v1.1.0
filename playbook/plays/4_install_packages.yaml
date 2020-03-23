@@ -1,0 +1,30 @@
+- name: '4. Install essential packages'
+  hosts: 'all'
+  gather_facts: true
+
+  tasks:
+# 4. 필수 패키지 설치  --> python yum 으로 설치
+    - name: '4-1. Install essential packages'
+      yum:
+        name:
+          - socat
+          - sshpass
+          - net-tools
+          - ntp
+          - bind-utils
+          - python-pip
+        state: 'present'
+      notify:
+      - yum-clean-metadata
+      delay: 10
+      retries: 10
+      register: result
+      until: result is succeeded
+      ignore_errors: yes
+  
+
+  handlers:
+    - name: yum-clean-metadata
+      command: yum clean metadata
+      args:
+        warn: no

@@ -1,0 +1,19 @@
+#0. ansible log 파일 생성 및 check hosts key false 설정
+- name: '0. create log & config check'
+  hosts: 'boot'
+  gather_facts: true
+  vars_files:
+    - ../../automation_config.yaml
+
+  tasks:
+  - name: '0. create log & config check hosts'
+    lineinfile:
+      dest: '{{ item.dest }}'
+      regexp: '{{ item.regexp }}'
+      line: '{{ item.line }}'
+      state: present
+      backup: yes
+    with_items:
+      - { dest: '/etc/ansible/ansible.cfg', regexp: '#host_key_checking = False', line: 'host_key_checking = False'}
+      - { dest: '/etc/ansible/ansible.cfg', regexp: '#log_path = /var/log/ansible.log', line: 'log_path = /root/ansible.log'}
+    register: result

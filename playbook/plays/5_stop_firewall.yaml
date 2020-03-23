@@ -1,0 +1,11 @@
+- name: '5. stop firewalld'
+  hosts: 'all'
+  gather_facts: true
+
+  tasks:
+#5. 방화벽 작동 정지(작동 시, icp설치 오류)
+    - name: '5-1. stop firewalld'
+      shell: 'systemctl stop firewalld'  
+      register: result
+      failed_when:  result.changed == false
+      ignore_errors: yes

@@ -1,0 +1,132 @@
+
+#final check
+- name: '검증 작업을 시작합니다.'
+  hosts: 'all'
+  gather_facts: true
+  vars_files:
+    - ../../automation_config.yaml
+  vars:
+    icp_install_path: '/opt/ibm-cloud-private-{{ util.icp_ver }}'
+
+  tasks:
+    #19. selinux check
+    - name: 'selinux check'
+      shell: 'getenforce'
+      register: result
+      no_log: True
+
+    - name: '19. selinux 상태를 확인합니다.'
+      debug: var=result.stdout
+
+    #20. /etc/hosts check
+    - name: 'check /etc/hosts'
+      shell: 'cat /etc/hosts'
+      register: result
+      no_log: True
+
+    - name: '20. /etc/hosts 내용을 출력합니다.'
+      debug: var=result.stdout.split('\n')
+    
+    #21 check port
+    - name: 'Run task port check'
+      shell: 'ss -tnlp | awk "{print $4}" | egrep -w "8001|8500|3306"' 
+      register: result
+      failed_when:  result.changed == false
+ 
+
+    - name: '21-1. 각 노드의 포트 사용여부를 확인 합니다(정상)'
+      debug: msg="포트 상태가 정상으로 확인 되었습니다."
+      when: result.rc == 1
+
+    - name: '21-2. 각 노드의 포트 사용여부를 확인 합니다(불량)'
+      debug: var=result.stdout.split('\n')
+      when: result.rc > 1 or result.rc == 0
+
+    #22. ntp확인
+    - name: 'ntp check'
+      shell: 'ntpq -p'
+      register: result
+
+    - name: '22-1. ntp time 설정값을 출력합니다.'
+      debug: var=result.stdout.split('\n')
+
+    # 23. 방화벽 작동 정지(작동 시, icp설치 오류)
+    - name: 'firewalld check'
+      shell: 'systemctl status firewalld'
+      register: result
+      failed_when:  result.changed == false
+
+    - name: '23-1. 방화벽 상태를 출력합니다.(not install)'
+      debug: msg="방화벽이 설치되어 있지 않습니다."
+      when: result.stdout == ""
+
+    - name: '23-2. 방화벽 상태를 출력합니다.(status)'
+      debug: var=result.stdout.split('\n')
+      when: result.stderr_lines==[]
+
+    # 24. DNS외부 url 접근 가능 확인 
+    - name: 'DNS nslookup check'
+      command: nslookup www.google.com
+      ignore_errors: true
+      register: result
+
+    - name: '24-1. dns server 상태를 출력합니다(정상)'
+      debug: var=result.stdout.split('\n')
+      when: result.stderr==""
+
+    - name: '24-2. dns server 상태를 출력합니다(장애)'
+      debug: var=result.stdout
+      when: "'server can\\'t find' in result.stdout"
+
+      
+    #25. 필수 패키지 설치 확인
+    - name: 'Check essential packages'
+      ignore_errors: true
+      yum:
+        name:
+          - socat
+          - sshpass
+          - net-tools
+          - ntp
+          - bind-utils
+          - python-pip
+        state: 'present'
+      register: result
+      no_log: True
+
+    - name: '25-1. 설치 패키지를 확인 합니다.'
+      debug: var=result.results
+
+
+    #26. /opt/ibm-cloud/cluster/hosts check
+    - name: '/opt/ibm-cloud-private/cluster의 hosts파일 확인'
+      shell: 'cat {{ icp_install_path }}/cluster/hosts'
+      register: result
+      failed_when: 
+        - "'boot' in inventory_hostname"
+        - result.stdout == ""
+      ignore_errors: yes
+      no_log: True
+
+    - name: '26-1. /opt/ibm-cloud-private/cluster의 hosts내용을 출력합니다.'
+      debug: var=result.stdout.split('\n')
+      when: "'boot' in inventory_hostname"
+
+
+    #27. docker version 확인
+    - name: 'docker version check'
+      shell: 'docker --version'
+      register: result
+      no_log: True
+
+    - name: '27-1. 각 노드의 docker version을 출력합니다.'
+      debug: var=result.stdout
+
+    #28. docker image 확인
+    - name: 'docker version check'
+      shell: 'docker images | wc -l'
+      no_log: True
+      register: result
+
+    - name: '28. docker images 갯수를 출력합니다.'
+      debug: var=result.stdout

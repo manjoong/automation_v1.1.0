@@ -1,0 +1,37 @@
+#9. Docker package 다운
+- name: 9. docker install file upload'
+  hosts: 'boot'
+  gather_facts: true
+  vars_files:
+    - ../../automation_config.yaml
+
+  vars:
+    docker_setup_path: '{{ util.docker_path }}'
+
+  tasks:
+    - name: 9-1. docker bin file change excute mode'
+      file: 
+        dest: '{{ docker_setup_path }}'
+        mode: 'a+wrx'
+      register: 'result'
+
+  #centos라면 이부분 추가 실행
+    - name: 9-2. Add in CentOS if statement'
+      lineinfile:
+        path: '{{ docker_setup_path }}'
+        insertafter: '\sDISTRO="SUSE"'
+        line: '{{ item.line }}'
+      with_items:
+        - { line: "    DISTRO='RHEL'" }
+        - { line: '  elif grep -Eqi "CentOS Linux" /etc/issue || grep -Eq "CentOS Linux" /etc/*-release; then' }
+      when: os.node_os == 'centos'
+
+
+    - name: 9-4. upload docker bin file to all node (pemkey)'
+      shell: 'sshpass  scp -o "StrictHostKeyChecking no" {{ docker_setup_path }} root@{{ item.ip }}:/root/'
+      with_items: "[{% for name, item in node.items() %}{% if name != 'boot' %}{% for value in item %}{{ value }},{% endfor %}{% endif %}{% endfor %}]"
+      register: result 
+      delay: 9
+      retries: 9
+      until: result is succeeded
+      failed_when: result.stderr != ""

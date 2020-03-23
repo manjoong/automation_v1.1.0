@@ -1,0 +1,39 @@
+# #14. icp 설치 관련
+- name: 14. Preset ICP install'
+  hosts: 'boot'
+  gather_facts: true
+  vars_files:
+    - ../../automation_config.yaml
+ 
+  vars:
+    icp_install_path: '/opt/ibm-cloud-private-{{ util.icp_ver }}'
+
+  tasks:
+ # 14-1. 기존 hosts 파일 삭제 및 각 노드정보 입력(/cluster/hosts)
+    - name: '14-1. Delete and create host file'
+      file:
+        path: '{{ icp_install_path }}/cluster/hosts'
+        state: '{{ item.state }}'
+      with_items:
+        - { state: absent }
+        - { state: touch }       
+      register: 'result'
+ 
+    - name: '14-2. Update hosts content'
+      blockinfile:
+        path: '{{ icp_install_path }}/cluster/hosts'
+        marker: ''
+        block: |
+          {% for name, item in node.items() %}
+          {% if name != 'boot' %}
+          {% if name == 'mgmt' %}
+          [management]
+          {% else %}
+          [{{ name }}]
+          {% endif %}
+          {% for value in item %}
+          {{ value.ip }} 
+          {% endfor %}
+          {% endif %}
+
+          {% endfor %}  

@@ -1,0 +1,20 @@
+# #12. icp 설치 관련
+- name: 12. Preset ICP install'
+  hosts: 'boot'
+  gather_facts: true
+  vars_files:
+    - ../../automation_config.yaml
+ 
+  vars:
+    icp_install_path: '/opt/ibm-cloud-private-{{ util.icp_ver }}'
+
+  tasks:
+  # 12-1. ICP 설치 폴더 생성
+    - name: '12-1. Make install directory'
+      file:
+        path: '{{ item.path }}'
+        state: 'directory'
+        mode: 'u=rw,g=r,o=r'
+      with_items:
+        - { path: '{{ icp_install_path }}' }
+      register: 'result'

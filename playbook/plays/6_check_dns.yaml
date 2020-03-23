@@ -1,0 +1,12 @@
+- name: '6. DNS nslookup check'
+  hosts: 'all'
+  gather_facts: true
+
+  tasks:
+# 6. DNS외부 url 접근 가능 확인 
+    - name: '6-1. DNS nslookup check'
+      command: nslookup www.google.com
+      ignore_errors: true
+      register: 'result'
+    - debug:
+      when: "'server can\\'t find' in result.stdout"

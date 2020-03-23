@@ -1,0 +1,16 @@
+# #18. icp 설치 관련
+- name: 18. Preset ICP install'
+  hosts: 'boot'
+  gather_facts: true
+  vars_files:
+    - ../../automation_config.yaml
+ 
+  vars:
+    icp_install_path: '/opt/ibm-cloud-private-{{ util.icp_ver }}'
+
+  tasks:
+    - name: '18-1. Run icp installer'
+      shell: | 
+            cd /opt/ibm-cloud-private-3.2.0/cluster;sudo nohup docker run --net=host -t -e LICENSE=accept -v "$(pwd)":/installer/cluster ibmcom/icp-inception-amd64:{{ util.icp_ver }}-ee install > log.out &
+            
+      register: result

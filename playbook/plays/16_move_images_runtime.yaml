@@ -1,0 +1,36 @@
+# #16. icp 설치 관련
+- name: 16. Preset ICP install'
+  hosts: 'boot'
+  gather_facts: true
+  vars_files:
+    - ../../automation_config.yaml
+ 
+  vars:
+    icp_install_path: '/opt/ibm-cloud-private-{{ util.icp_ver }}'
+
+  tasks:
+    - name: '16-2. Move icp image file'
+      shell: 'mv {{ util.icp_path }} {{ icp_install_path }}/cluster/images/'                
+      register: 'result'
+
+
+    - name: '16-3. Move docker bin file'
+      shell: 'mv {{ util.docker_path }}  {{ icp_install_path }}/cluster/runtime/'                
+      register: 'result'
+    - debug:
+        var: 'result.stdout'
+
+    - name: '16-4. delete ssh_key'
+      file:
+        path: '{{ icp_install_path }}/cluster/ssh_key'
+        state: '{{ item.state }}'
+      with_items:
+        - { state: absent }
+
+    - name: '16-5. copy ssh key'
+      shell: 'cp {{ util.sshkey }}  {{ icp_install_path }}/cluster/ssh_key/'
+
+    - name: '16-6. docker restart'
+      shell: 'systemctl restart docker'
+
+

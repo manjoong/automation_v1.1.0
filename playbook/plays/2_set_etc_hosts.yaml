@@ -1,0 +1,64 @@
+#2. etc hosts 파일 세팅
+- name: '2. Delete all hosts file'
+  hosts: 'all, !boot'
+  gather_facts: true
+  vars_files:
+    - ../../automation_config.yaml
+
+  vars:
+    centos_hosts_file_path: '/etc/hosts'
+
+  tasks:
+    - name: '2-1. Delete and create host file --all'
+      file:
+        path: '{{ centos_hosts_file_path }}'
+        state: '{{ item.state }}'
+      with_items:
+        - { state: absent }
+        - { state: touch } 
+
+
+- name: '2. Hosts file update --all node'
+  hosts: 'all, !boot'
+  gather_facts: true
+  vars_files:
+    - ../../automation_config.yaml
+
+  vars:
+    centos_hosts_file_path: '/etc/hosts'
+  
+  tasks:
+    - name: '2-3. check /etc/hosts --all node'
+      shell: 'cat /etc/hosts'
+      register: result
+      no_log: True   
+
+    - name: '2-4. Delete and create host file --all node'
+      file:
+        path: '{{ centos_hosts_file_path }}'
+        state: '{{ item.state }}'
+      with_items:
+        - { state: absent }
+        - { state: touch } 
+      when: result.stdout == ""
+    
+
+    - name: '2-5. Update hosts content'
+      blockinfile:
+        path: '{{ centos_hosts_file_path }}'
+        marker: ''
+        block: |
+          127.0.0.1 localhost.localdomain localhost
+          127.0.0.1 localhost4.localdomain4 localhost4
+
+          ::1 localhost.localdomain localhost
+          ::1 localhost6.localdomain6 localhost6
+
+          {% for name, item in node.items() %}
+          {% for value in item %}
+          {% if name != 'boot' %}
+          {{ value.ip }} {{ value.fqdn }} {{ value.hostname }}
+          {% endif %}
+          {% endfor %}
+          {% endfor %}
+      when: result.stdout == ""

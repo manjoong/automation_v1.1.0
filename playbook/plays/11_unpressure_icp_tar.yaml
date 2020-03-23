@@ -1,0 +1,16 @@
+# #11. icp 설치 관련
+- name: '11. Preset ICP install'
+  hosts: 'boot'
+  gather_facts: true
+  vars_files:
+    - ../../automation_config.yaml
+ 
+  vars:
+    ansible_become: true
+    icp_install_path: '/opt/ibm-cloud-private-{{ util.icp_ver }}'
+
+  #11-1. ICP Docker 이미지 로드
+  tasks:
+    - name: '11-3. unpressure icp install tar file'
+      shell: 'tar xf {{ util.icp_path }} -O | docker load'                
+      register: 'result'

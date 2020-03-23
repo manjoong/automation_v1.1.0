@@ -1,0 +1,16 @@
+# #17. icp 설치 관련
+- name: 17. Preset ICP install'
+  hosts: 'boot'
+  gather_facts: true
+  vars_files:
+    - ../../automation_config.yaml
+ 
+  vars:
+    icp_install_path: '/opt/ibm-cloud-private-{{ util.icp_ver }}'
+
+  tasks:
+  #config.yaml은 미리 작성 후, 불러오기
+ # 18. cluster 설정 (cluster/config.yaml)
+    - name: '17-1. move folder config.yaml'
+      shell: 'mv {{ util.config_path }} {{ icp_install_path }}/cluster/'                
+      register: 'result'

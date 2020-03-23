@@ -1,0 +1,59 @@
+
+# 10. Docker 엔진 설치
+- name: '10. Istall docker(master)'
+  hosts: 'all, !boot, !proxy, !va, !mgmt, !worker'
+  gather_facts: true
+  vars_files:
+    - ../../automation_config.yaml
+  vars:
+    docker_setup_path: '{{ util.docker_path }}'
+
+  tasks:
+    - name: '10-1. docker bin file change excute mode'
+      file: 
+        dest: '/root/{{ util.docker_path.split("/").pop() }}'
+        mode: 'a+wrx'
+      register: 'result'
+
+    - name: '10-2. install docker master node'
+      shell: 'sudo -S /root/{{ util.docker_path.split("/").pop() }} --install'
+      register: result
+      delay: 9
+      retries: 9
+      until: "'has installed.' in result.stdout"
+      ignore_errors: true
+
+    - name: '10-3. docker restart'
+      shell: 'systemctl restart docker'
+
+- name: '10. Istall docker(not master)'
+  hosts: 'all, !master'
+  gather_facts: true
+  vars_files:
+    - ../../automation_config.yaml
+
+  vars:
+    docker_setup_path: '{{ util.docker_path }}'
+
+  tasks:
+    - name: '10-4. docker version check'
+      shell: 'docker --version'
+      ignore_errors: true
+      register: result
+      failed_when: result.stderr != ""
+  
+    - name: '10-5. docker bin file change excute mode'
+      file: 
+        dest: '/root/{{ util.docker_path.split("/").pop() }}'
+        mode: 'a+wrx'
+
+    - name: '10-6. install docker all node'
+      shell: 'sudo -S /root/{{ util.docker_path.split("/").pop() }} --install'
+      register: result
+      delay: 9
+      retries: 9
+      until: "'has installed.' in result.stdout"
+      ignore_errors: true
+
+    - name: '10-7. docker restart'
+      shell: 'systemctl restart docker'

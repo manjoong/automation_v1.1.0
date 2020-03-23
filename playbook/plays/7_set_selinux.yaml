@@ -1,0 +1,14 @@
+- name: '7. Sellinux Check '
+  hosts: 'all'
+  gather_facts: true
+
+  tasks:
+# get enforce 현재 상태 체크하고 
+    - name: '7-1. sellinux disable'
+      shell: getenforce #enforce이면 수정
+      register: 'result'
+      # ignore_errors: true
+    
+    - name: '7-2. change selinux mode'
+      shell: setenforce 0
+      when: result.stdout != 'Permissive'

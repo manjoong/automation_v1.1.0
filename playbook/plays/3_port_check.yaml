@@ -1,0 +1,22 @@
+- name: '3. Install, NTP Check '
+  hosts: 'all'
+  gather_facts: true
+  vars_files:
+    - ../../automation_config.yaml
+
+  tasks:
+    - name: '3-1. Install epel package'
+      yum:
+        name:
+          - epel-release
+        state: 'present'
+      delay: 10
+      retries: 3
+      register: result
+      ignore_errors: yes
+      until: result is succeeded 
+
+    - name: '3-2. Run task port check'
+      shell: 'ss -tnlp | awk "{print $4}" | egrep -w "8001|8500|3306"' 
+      register: result
+      failed_when: result.stdout != "" 

@@ -1,0 +1,63 @@
+# os를 입력 {{ centos, redhat, ubuntu }} 지원
+os:
+  node_os: centos
+util:
+  # docker bin 파일이 있는 경로를 입력
+  docker_path: /root/icp-docker-18.06.2_x86_64.bin
+  # icp tar 파일이 있는 경로를 입력
+  icp_path: /root/ibm-cloud-private-x86_64-3.2.0.2001.tar.gz
+  # config.yaml 파일이 있는 경로를 입력
+  config_path: /root/config.yaml
+  # icp version 입력
+  icp_ver: 3.2.0.2001
+  # ssh key path 입력
+  sshkey: /root/.ssh/id_rsa
+  # 마운트할 디스크 패스 지정. 사용하지 않으면 false
+  disk_path: /dev/xvdc
+
+
+# 각 노드 정보 입력
+node:
+  boot:  
+    - hostname: boot01        #boot node의 hostname입력
+      ip: localhost          #boot node ip인데 ''localhost로 고정'
+      fqdn: boot01.stg.local     #노드의 hostname + fqdn 입력
+
+  master: 
+    - hostname: master  #노드의 hostname 입력
+      ip: 10.178.211.108   #노드의 private ip 입력
+      fqdn: master.stg.local   #노드의 hostname + fqdn 입력(변경 상관 없음)
+
+    - hostname: master2  
+      ip: 10.178.211.19   
+      fqdn: master2.stg.local  
+
+    - hostname: master3  
+      ip: 10.178.211.94   
+      fqdn: master3.stg.local   
+
+  mgmt:
+    - hostname: mgmt01  #노드의 hostname 입력 ex)mgmt01 
+      ip: 10.178.211.50  #노드의 private ip 입력
+      fqdn: mgmt01.stg.local   #노드의 hostname + fqdn 입력
+
+  proxy:
+    - hostname: proxy01   #노드의 hostname 입력  
+      ip: 10.178.211.48   #노드의 private ip 입력
+      fqdn: proxy01.stg.local  #노드의 hostname + fqdn 입력
+
+  va:
+    - hostname: va   #노드의 hostaname 입력 ex)va01 
+      ip: 10.178.158.156    #노드의 private ip 입력
+      fqdn: va01.stg.local   #노드의 fqdn 입력
+
+  worker:
+    - hostname: worker    #노드의 hostname 입력 ex)worker01 
+      ip: 10.178.158.149   #노드의 private ip 입력
+      fqdn: worker.stg.local   #노드의 fqdn 입력
+    - hostname: worker2    
+      ip: 10.178.158.130   
+      fqdn: worker2.stg.local   
+    - hostname: worker3    
+      ip: 10.178.211.115   
+      fqdn: worker3.stg.local  
