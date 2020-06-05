@@ -4,7 +4,7 @@
 ### os : 
 centos 7.x, redhat os
 ### 필요파일: 
-1. congig.yaml
+1. config.yaml
 2. icp 설치 tar파일
 3. docker-install.bin파일
 ### 접속 계정 권한: 
