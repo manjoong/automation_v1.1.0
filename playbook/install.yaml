@@ -1,29 +1,29 @@
 
-#- import_playbook: plays/0_set_ansible_conf.yaml
+- import_playbook: plays/0_set_ansible_conf.yaml
 
-#- import_playbook: plays/1_set_sshd_conf.yaml
+- import_playbook: plays/1_set_sshd_conf.yaml
 
-#- import_playbook: plays/2_set_etc_hosts.yaml
+- import_playbook: plays/2_set_etc_hosts.yaml
 
-#- import_playbook: plays/3_port_check.yaml
+- import_playbook: plays/3_port_check.yaml
 
-#- import_playbook: plays/4_install_packages.yaml
+- import_playbook: plays/4_install_packages.yaml
 
-#- import_playbook: plays/5_stop_firewall.yaml
+- import_playbook: plays/5_stop_firewall.yaml
 
-#- import_playbook: plays/6_check_dns.yaml
+- import_playbook: plays/6_check_dns.yaml
 
-#- import_playbook: plays/7_set_selinux.yaml
+- import_playbook: plays/7_set_selinux.yaml
 
 #- import_playbook: plays/8_set_add_disk.yaml
 
-#- import_playbook: plays/9_docker_file_upload.yaml
+- import_playbook: plays/9_docker_file_upload.yaml
 
-#- import_playbook: plays/10_install_docker.yaml
+- import_playbook: plays/10_install_docker.yaml
 
-#- import_playbook: plays/11_unpressure_icp_tar.yaml
+- import_playbook: plays/11_unpressure_icp_tar.yaml
 
-#- import_playbook: plays/12_make_install_dir.yaml
+- import_playbook: plays/12_make_install_dir.yaml
 
 - import_playbook: plays/13_extract_conf_file.yaml
 
